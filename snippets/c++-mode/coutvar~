@@ -1,0 +1,8 @@
+# -*- mode: snippet -*-
+# contributor: York Zhao <gtdplatform@gmail.com>
+# name: coutvar
+# key: coutvar
+# --
+std::cout << \"$1 : \" << $1 << std::endl;
+$0
+

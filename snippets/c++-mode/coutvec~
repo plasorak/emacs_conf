@@ -1,0 +1,8 @@
+# -*- mode: snippet -*-
+# contributor: York Zhao <gtdplatform@gmail.com>
+# name: coutvec
+# key: coutvec
+# --
+std::cout << \"$1 : \" << $1 << std::endl;
+$0
+
