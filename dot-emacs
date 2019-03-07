@@ -18,7 +18,7 @@
   :ensure t
   :config (load-theme 'darkokai t))
 
-(org-babel-load-file (expand-file-name "~/.emacs.d/config.org"))
+(org-babel-load-file (expand-file-name (file-chase-links "~/.emacs.d/config.org")))
 
 (custom-set-variables
  ;; custom-set-variables was added by Custom.

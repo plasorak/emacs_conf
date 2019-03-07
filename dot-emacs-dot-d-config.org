@@ -587,3 +587,8 @@
 (point-at-eol)))))
 (global-set-key (kbd "C-c w l") 'copy-whole-line)
 #+END_SRC
+* ART-FCL
+#+BEGIN_SRC emacs-lisp
+(load "~/.emacs.d/fcl-mode.el" nil t t)
+(add-to-list 'auto-mode-alist '("\\.fcl$" . art-fhicl-mode))
+#+END_SRC
