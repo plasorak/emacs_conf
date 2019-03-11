@@ -109,6 +109,7 @@
   (global-set-key (kbd "M-w") 'kill-region)
   (global-set-key (kbd "C-w") 'kill-ring-save)
 #+END_SRC
+
 ** Get rid of that sweet splash screen
 #+BEGIN_SRC emacs-lisp
 (setq inhibit-splash-screen t)
@@ -591,4 +592,19 @@
 #+BEGIN_SRC emacs-lisp
 (load "~/.emacs.d/fcl-mode.el" nil t t)
 (add-to-list 'auto-mode-alist '("\\.fcl$" . art-fhicl-mode))
+#+END_SRC
+* Logging
+#+BEGIN_SRC emacs-lisp
+(load  "~/.emacs.d/interaction-log.el" nil t t)
+(require 'interaction-log)
+(interaction-log-mode +1)
+(global-set-key
+(kbd "C-c l")
+(lambda () (interactive) (display-buffer ilog-buffer-name)))
+#+END_SRC
+* Things that have to go in the end
+** Get rid of cmd-t, ctrl-t
+#+BEGIN_SRC emacs-lisp
+  (global-unset-key (kbd "s-t"))
+  (global-unset-key (kbd "C-t"))
 #+END_SRC
