@@ -38,10 +38,18 @@
     (add-hook 'prog-mode-hook #'rainbow-delimiters-mode))
 #+END_SRC
 * Swiper
+** Enable it
 #+BEGIN_SRC emacs-lisp
   (use-package swiper
     :ensure t
     :bind ("C-s" . swiper))
+#+END_SRC
+** Disable isearch
+#+BEGIN_SRC emacs-lisp
+(put 'isearch-backward 'disabled "ISearch is disabled")
+(put 'isearch-repeat-backward 'disabled "ISearch is disabled")
+(put 'isearch-repeat-forward 'disabled "ISearch is disabled")
+(put 'isearch-forward 'disabled "ISearch is disabled")
 #+END_SRC
 * Org
 ** basic config
@@ -95,13 +103,6 @@
 
 (global-set-key "\C-co" 'switch-to-minibuffer) ;; Bind to `C-c o'
 #+END_SRC
-** Remove arrow bar
-#+BEGIN_SRC emacs-lisp
-(global-unset-key (kbd "<left>"))
-(global-unset-key (kbd "<right>"))
-(global-unset-key (kbd "<up>"))
-(global-unset-key (kbd "<down>"))
-#+END_SRC
 ** Inverse C-w and M-w
 #+BEGIN_SRC emacs-lisp
   (global-unset-key (kbd "C-w"))
@@ -120,7 +121,7 @@
 #+END_SRC
 ** Default dir
 #+BEGIN_SRC emacs-lisp
-(setq default-directory "~/Documents/Sussex-Postdoc/Physics")
+(setq default-directory "~/Dropbox/Sussex_Postdoc")
 #+END_SRC
 ** Remove case sensitivity
 #+BEGIN_SRC emacs-lisp
@@ -251,6 +252,12 @@
   :ensure t
   :init
   (beacon-mode 1))
+(add-hook 'eshell-mode-hook (lambda ()
+                                    (setq-local global-hl-line-mode
+                                                nil)))
+(add-hook 'term-mode-hook (lambda ()
+                                    (setq-local global-hl-line-mode
+                                                nil)))
 #+END_SRC
 * Popup kill ring
 #+BEGIN_SRC emacs-lisp
@@ -303,15 +310,15 @@
   ;;               (ggtags-mode 1))))
   ;; )
 #+END_SRC
-** electric
-#+BEGIN_SRC emacs-lisp
-(setq electric-pair-pairs '(
-                            (?\( . ?\))
-                            (?\[ . ?\])
-                            (?\{ . ?\})
-                            ))
-(electric-pair-mode t)
-#+END_SRC
+# ** electric
+# #+BEGIN_SRC emacs-lisp
+# (setq electric-pair-pairs '(
+#                             (?\( . ?\))
+#                             (?\[ . ?\])
+#                             (?\{ . ?\})
+#                             ))
+# (electric-pair-mode t)
+# #+END_SRC
 ** subword
 #+BEGIN_SRC emacs-lisp
 (global-subword-mode 1)
@@ -331,13 +338,22 @@
 (setq-default indent-tabs-mode nil)
 #+END_SRC
 ** flycheck
+Good for linting
 #+BEGIN_SRC emacs-lisp
   (use-package flycheck
     :ensure t
     :init (global-flycheck-mode t))
   (add-hook 'c++-mode-hook
             (lambda () (setq flycheck-gcc-include-path
-                             (list (expand-file-name "/Users/plasorak/Applications/ROOT/include")))))
+                             (list (expand-file-name "/Users/plasorak/Applications/ROOT/include/")))))
+  (add-hook 'c++-mode-hook
+            (lambda () (setq flycheck-clang-include-path
+                             (list (expand-file-name "/Users/plasorak/Applications/ROOT/include/")))))
+#+END_SRC
+* CMake
+#+BEGIN_SRC emacs-lisp
+(use-package cmake-mode
+  :ensure t)
 #+END_SRC
 * Which key
 #+BEGIN_SRC emacs-lisp
@@ -449,38 +465,50 @@
 #+END_SRC
 * IDO
 #+BEGIN_SRC emacs-lisp
-(use-package ido
-  :ensure t)
-(use-package ido-completing-read+
-  :ensure t)
-(use-package flx-ido
-  :ensure t)
+  (use-package ido
+    :ensure t)
+  (use-package ido-completing-read+
+    :ensure t)
+  (use-package flx-ido
+    :ensure t)
+  (use-package ido-hacks
+    :ensure t)
 
-(push ".exe"  completion-ignored-extensions)
-(push ".so"   completion-ignored-extensions)
-(push ".o"    completion-ignored-extensions)
-(push ".dSYM" completion-ignored-extensions)
-(push ".pdf"  completion-ignored-extensions)
-(push ".root" completion-ignored-extensions)
-(push ".png"  completion-ignored-extensions)
+  (push ".exe"  completion-ignored-extensions)
+  (push ".so"   completion-ignored-extensions)
+  (push ".o"    completion-ignored-extensions)
+  (push ".dSYM" completion-ignored-extensions)
+  (push ".pdf"  completion-ignored-extensions)
+  (push ".root" completion-ignored-extensions)
+  (push ".png"  completion-ignored-extensions)
 
-(setq ido-enable-prefix nil
-      ido-enable-flex-matching t
-      ido-create-new-buffer 'always
-      ido-use-filename-at-point 'guess
-      ido-max-prospects 10
-      ido-save-directory-list-file (expand-file-name "ido.hist")
-      ido-everywhere t
-      ido-default-file-method 'selected-window
-      ido-auto-merge-work-directories-length -1
-      ido-ignore-extensions t)
-(ido-mode +1)
-(ido-ubiquitous-mode +1)
+  ;; (custom-set-variables
+  ;;  '(ido-enable-last-directory-history nil)
+  ;;  '(ido-record-commands nil)
+  ;;  '(ido-max-work-directory-list 0)
+  ;;  '(ido-max-work-file-list 0))
 
-;;; smarter fuzzy matching for ido
-(flx-ido-mode +1)
-;; disable ido faces to see flx highlights
-(setq ido-use-faces nil)
+  (setq ido-enable-prefix nil
+        ido-enable-last-directory-history nil
+        ido-enable-flex-matching t
+        ido-record-commands nil
+        ido-max-work-directory-list 0
+        ido-max-work-file-list 0
+        ido-create-new-buffer 'always
+        ido-use-filename-at-point 'guess
+        ido-max-prospects 10
+        ido-save-directory-list-file (expand-file-name "ido.hist")
+        ido-everywhere t
+        ido-default-file-method 'selected-window
+        ido-auto-merge-work-directories-length -1
+        ido-ignore-extensions t)
+  (ido-mode +1)
+  (ido-ubiquitous-mode +1)
+
+  ;;; smarter fuzzy matching for ido
+  (flx-ido-mode +1)
+  ;; disable ido faces to see flx highlights
+  (setq ido-use-faces nil)
 #+END_SRC
 ** IDO vertical
 #+BEGIN_SRC emacs-lisp
@@ -532,10 +560,6 @@
   (mapc 'kill-buffer (buffer-list)))
 (global-set-key (kbd "C-M-s-k") 'kill-all-buffers)
 #+END_SRC
-** enable ibuffer
-#+BEGIN_SRC emacs-lisp
-(global-set-key (kbd "C-x b") 'ibuffer)
-#+END_SRC
 ** enable expert mode
 #+BEGIN_SRC emacs-lisp
 (setq ibuffer-expert t)
@@ -543,6 +567,7 @@
 ** switch  buffer
 #+BEGIN_SRC emacs-lisp
 (global-set-key (kbd "C-x C-b") 'ido-switch-buffer)
+(global-set-key (kbd "C-x b") 'ido-switch-buffer)
 #+END_SRC
 * avy
 #+BEGIN_SRC emacs-lisp
@@ -597,14 +622,74 @@
 #+BEGIN_SRC emacs-lisp
 (load  "~/.emacs.d/interaction-log.el" nil t t)
 (require 'interaction-log)
-(interaction-log-mode +1)
+;;(interaction-log-mode +1)
 (global-set-key
 (kbd "C-c l")
 (lambda () (interactive) (display-buffer ilog-buffer-name)))
+#+END_SRC
+* GIT integration
+#+BEGIN_SRC emacs-lisp
+(use-package magit
+:ensure t
+)
+#+END_SRC
+
+* Directory aliases
+#+BEGIN_SRC emacs-lisp
+(require 'ido)
+(require 'dired)
+
+(defconst *my-dired-dirs*
+    (list (cons "present"  "~/Dropbox/References/MyRef/Postdoc_Sussex_Ref/Presentation")
+          (cons "work"     "~/Dropbox/Sussex_Postdoc/")
+          (cons "cernhome" "/ssh:lxplus7:~/")
+          (cons "np04sw"   "/ssh:lxplus7|ssh:np04-srv-019:/nfs/sw/work_dirs/plasorak2/")
+          (cons "fnalapp"  "/ssh:dunegpvm15:/dune/app/users/plasorak")))
+
+(defconst *my-dired-aliases*
+    (mapcar (lambda (e) (car e)) *my-dired-dirs*))
+
+(defun my-dired-open-alias ()
+"Open dired alias?"
+    (interactive)
+      (setq alias
+            (ido-completing-read "Alias: "
+                                 ,*my-dired-aliases*
+                                 nil t))
+    (if (and (stringp alias) (> (length alias) 0 ))
+        (let ((pair (assoc alias *my-dired-dirs*)))
+          (if pair
+              (dired (cdr pair))
+            (error "Invalid alias %s" alias)))
+      (error "Invalid alias %s" alias)))
+
+(global-set-key (kbd "s-d") 'my-dir-open-alias)
 #+END_SRC
 * Things that have to go in the end
 ** Get rid of cmd-t, ctrl-t
 #+BEGIN_SRC emacs-lisp
   (global-unset-key (kbd "s-t"))
   (global-unset-key (kbd "C-t"))
+#+END_SRC
+* Remove arrows
+#+BEGIN_SRC emacs-lisp
+(global-unset-key (kbd "<left>"))
+(global-unset-key (kbd "<right>"))
+(global-unset-key (kbd "<up>"))
+(global-unset-key (kbd "<down>"))
+
+(global-unset-key (kbd "<M-left>"))
+(global-unset-key (kbd "<M-right>"))
+(global-unset-key (kbd "<M-up>"))
+(global-unset-key (kbd "<M-down>"))
+
+(global-unset-key (kbd "C-x <left>"))
+(global-unset-key (kbd "C-x <right>"))
+
+(add-hook 'minibuffer-setup-hook
+          (lambda ()
+            (local-unset-key (kbd "<left>"))
+            (local-unset-key (kbd "<right>"))
+            (local-unset-key (kbd "<up>"))
+            (local-unset-key (kbd "<down>"))))
 #+END_SRC

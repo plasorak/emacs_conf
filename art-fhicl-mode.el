@@ -134,7 +134,8 @@
 (define-derived-mode art-fhicl-mode fundamental-mode
   "art-fhicl-mode is a major mode for editing language art-fhicl."
   :syntax-table art-fhicl-syntax-table
-
+  (setq comment-start "# ")
+  (setq comment-end "")
   (make-local-variable 'art-fhicl-indent-offset)
   (set (make-local-variable 'indent-line-function) 'art-fhicl-indent-line)
   (setq font-lock-defaults '(art-fhicl-font-lock-keywords))
