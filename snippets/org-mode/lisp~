@@ -1,0 +1,7 @@
+# -*- mode: snippet -*-
+# name: insert_lisp
+# key: <el
+# --
+#+BEGIN_SRC emacs-lisp
+$0
+#+END_SRC

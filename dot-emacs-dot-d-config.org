@@ -69,6 +69,27 @@
 (org-clock-persistence-insinuate)
 #+END_SRC
 * General stuff
+** Lastpass
+#+BEGIN_SRC emacs-lisp
+  ;; (use-package lastpass
+  ;;   :config
+  ;;   ;; Set lastpass user
+  ;;   (setq lastpass-user "pierre.lasorak@gmail.com")
+  ;;   ;; Enable lastpass custom auth-source
+  ;;   (lastpass-auth-source-enable))
+#+END_SRC
+** SOS stack over flow!
+#+BEGIN_SRC emacs-lisp
+(use-package sos
+:ensure t)
+#+END_SRC
+** Nyan
+#+BEGIN_SRC emacs-lisp
+(use-package nyan-mode
+  :ensure t
+  :config
+  (nyan-mode 1))
+#+END_SRC
 ** trailing whitespace
 #+BEGIN_SRC emacs-lisp
 (use-package ws-butler
@@ -110,7 +131,6 @@
   (global-set-key (kbd "M-w") 'kill-region)
   (global-set-key (kbd "C-w") 'kill-ring-save)
 #+END_SRC
-
 ** Get rid of that sweet splash screen
 #+BEGIN_SRC emacs-lisp
 (setq inhibit-splash-screen t)
@@ -245,6 +265,7 @@
 #+BEGIN_SRC emacs-lisp
 (global-unset-key (kbd "s-f"))
 (global-set-key (kbd "s-f") 'toggle-frame-fullscreen)
+(global-set-key (kbd "<s-return>") 'toggle-frame-fullscreen)
 #+END_SRC
 * Beacon
 #+BEGIN_SRC emacs-lisp
@@ -296,7 +317,6 @@
 #+BEGIN_SRC emacs-lisp
 (require 'tramp)
 (add-to-list 'tramp-remote-path "~/global_install/bin/")
-(print 'tramp-remote-path)
 #+END_SRC
 * C++ stuff
 ** ggtags
@@ -448,20 +468,83 @@ Good for linting
   (add-hook 'c++-mode-hook 'yas-minor-mode 1)
   (add-hook 'c-mode-hook 'yas-minor-mode 1)
   (add-hook 'python-mode-hook 'yas-minor-mode 1)
+  (add-hook 'org-mode-hook 'yas-minor-mode 1)
 #+END_SRC
 * LaTex
-** Some minor mode that I'm not sure is working
 #+BEGIN_SRC emacs-lisp
-(defun turn-on-outline-minor-mode ()
-(outline-minor-mode 1))
-(add-hook 'LaTeX-mode-hook 'turn-on-outline-minor-mode)
-(add-hook 'latex-mode-hook 'turn-on-outline-minor-mode)
-#+END_SRC
-** Some other stuff which I have no clue
-#+BEGIN_SRC emacs-lisp
-(setq TeX-parse-self t)
-(setq TeX-save-query nil)
-(setq-default TeX-master nil)
+  (use-package tex
+    :ensure auctex
+    :config
+    (setq TeX-auto-save t)
+    (setq TeX-parse-self t)
+    (setq LaTeX-indent-level 4)
+    (add-hook 'LaTeX-mode-hook 'visual-line-mode)
+    (add-hook 'LaTeX-mode-hook 'LaTeX-math-mode)
+    (add-hook 'LaTeX-mode-hook 'yas-minor-mode 1))
+
+  (use-package company-math
+    :ensure t
+    :config
+    (add-hook 'LaTeX-mode-hook (lambda ()
+                                   (add-to-list 'company-backends 'company-math-symbols-latex)
+                                   (add-to-list 'company-backends 'company-latex-commands))))
+
+  (eval-after-load 'tex
+    '(setq LaTeX-indent-environment-list
+             '(("itemize" LaTeX-indent-tabular)
+               ("enumerate" LaTeX-indent-tabular)
+               ("verbatim" current-indentation)
+               ("verbatim*" current-indentation)
+               ("tabular" LaTeX-indent-tabular)
+               ("tabular*" LaTeX-indent-tabular)
+               ("align" LaTeX-indent-tabular)
+               ("align*" LaTeX-indent-tabular)
+               ("array" LaTeX-indent-tabular)
+               ("eqnarray" LaTeX-indent-tabular)
+               ("eqnarray*" LaTeX-indent-tabular)
+               ("multline" LaTeX-indent-tabular)
+               ("displaymath")
+               ("equation")
+               ("equation*")
+               ("picture")
+               ("tabbing"))))
+
+  (eval-after-load 'tex
+    '(progn
+       (defun save-compile-latex ()
+           "Save and compile latex document"
+           (interactive)
+           (save-buffer)
+           (TeX-command-sequence t t))
+
+       (defun complete-if-no-space ()
+           (interactive)
+           (let ((cb (string (char-before))))
+             (if (or (equal cb " ") (equal (point) (line-beginning-position)))
+                 (tab-to-tab-stop)
+               (TeX-complete-symbol))))
+
+      (add-hook 'LaTeX-mode-hook (lambda ()
+            (define-key LaTeX-mode-map (kbd "<f5>") 'save-compile-latex)
+            (define-key LaTeX-mode-map (kbd "<f7>") 'preview-clearout-buffer)
+            (define-key LaTeX-mode-map (kbd "TAB") 'complete-if-no-space)
+            (define-key LaTeX-mode-map (kbd "<tab>") 'complete-if-no-space)))))
+
+
+  (add-hook 'LaTeX-mode-hook (lambda ()
+                                 (LaTeX-add-environments
+                                  '("tikzcd" LaTeX-env-label))))
+  (custom-set-variables 
+   '(font-latex-math-environments '("tikzcd" "display" "displaymath"
+                                      "equation" "eqnarray" "gather"
+                                      "multline"  "align" "alignat"
+                                      "xalignat" "dmath")))
+  ;; (eval-after-load 'preview
+  ;;   '(progn
+  ;;     (set-default 'preview-scale-function 1.7)
+  ;;     (set-default 'preview-default-option-list
+  ;;                   '("displaymath" "floats" "graphics" "textmath"))))
+
 #+END_SRC
 * IDO
 #+BEGIN_SRC emacs-lisp
@@ -510,14 +593,14 @@ Good for linting
   ;; disable ido faces to see flx highlights
   (setq ido-use-faces nil)
 #+END_SRC
-** IDO vertical
-#+BEGIN_SRC emacs-lisp
-(use-package ido-vertical-mode
-:ensure t
-:init
-(ido-vertical-mode 1))
-(setq ido-vertical-define-keys 'C-n-and-C-p-only)
-#+END_SRC
+# ** IDO vertical get rid of that, it's annoying
+# #+BEGIN_SRC emacs-lisp
+# (use-package ido-vertical-mode
+# :ensure t
+# :init
+# (ido-vertical-mode 1))
+# (setq ido-vertical-define-keys 'C-n-and-C-p-only)
+# #+END_SRC
 * Which function
 #+BEGIN_SRC emacs-lisp
 (require 'which-func)
@@ -542,10 +625,6 @@ Good for linting
 (defadvice ansi-term (before force-bash)
 (interactive (list my-term-shell)))
 (ad-activate 'ansi-term)
-#+END_SRC
-** Start on command+enter
-#+BEGIN_SRC emacs-lisp
-(global-set-key (kbd "<s-return>") 'ansi-term)
 #+END_SRC
 * Buffer
 ** Always kill current buffer
@@ -642,7 +721,8 @@ Good for linting
 (defconst *my-dired-dirs*
     (list (cons "present"  "~/Dropbox/References/MyRef/Postdoc_Sussex_Ref/Presentation")
           (cons "work"     "~/Dropbox/Sussex_Postdoc/")
-          (cons "cernhome" "/ssh:lxplus7:~/")
+          (cons "cernhome" "/ssh:lxplus754.cern.ch:~/")
+          (cons "cernafs"  "/ssh:lxplus754.cern.ch:/afs/cern.ch/work/p/plasorak/")
           (cons "np04sw"   "/ssh:lxplus7|ssh:np04-srv-019:/nfs/sw/work_dirs/plasorak2/")
           (cons "fnalapp"  "/ssh:dunegpvm15:/dune/app/users/plasorak")))
 
@@ -666,12 +746,16 @@ Good for linting
 (global-set-key (kbd "s-d") 'my-dir-open-alias)
 #+END_SRC
 * Things that have to go in the end
-** Get rid of cmd-t, ctrl-t
+** Get rid of cmd-t, ctrl-t, ctrl-v, ctrl-[
 #+BEGIN_SRC emacs-lisp
   (global-unset-key (kbd "s-t"))
   (global-unset-key (kbd "C-t"))
+  (global-unset-key (kbd "C-v"))
+;; DO NOT UNCOMMENT THIS OTHERWISE EVIL WILL COME ON YOU
+;; (and meta will just stop working... :'( )
+;;  (global-unset-key (kbd "C-["))
 #+END_SRC
-* Remove arrows
+* Remove arrows and mouse
 #+BEGIN_SRC emacs-lisp
 (global-unset-key (kbd "<left>"))
 (global-unset-key (kbd "<right>"))
@@ -692,4 +776,13 @@ Good for linting
             (local-unset-key (kbd "<right>"))
             (local-unset-key (kbd "<up>"))
             (local-unset-key (kbd "<down>"))))
+(add-hook 'ansi-term-hook
+          (lambda ()
+            (local-unset-key (kbd "<left>"))
+            (local-unset-key (kbd "<right>"))
+            (local-unset-key (kbd "<up>"))
+            (local-unset-key (kbd "<down>"))))
+(use-package disable-mouse
+:ensure t)
+(global-disable-mouse-mode)
 #+END_SRC
