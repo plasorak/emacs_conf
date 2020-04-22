@@ -721,8 +721,8 @@ Good for linting
 (defconst *my-dired-dirs*
     (list (cons "present"  "~/Dropbox/References/MyRef/Postdoc_Sussex_Ref/Presentation")
           (cons "work"     "~/Dropbox/Sussex_Postdoc/")
-          (cons "cernhome" "/ssh:lxplus754.cern.ch:~/")
-          (cons "cernafs"  "/ssh:lxplus754.cern.ch:/afs/cern.ch/work/p/plasorak/")
+          (cons "cernhome" "/ssh:lxplus7:~/")
+          (cons "cernafs"  "/ssh:lxplus7:/afs/cern.ch/work/p/plasorak/")
           (cons "np04sw"   "/ssh:lxplus7|ssh:np04-srv-019:/nfs/sw/work_dirs/plasorak2/")
           (cons "fnalapp"  "/ssh:dunegpvm15:/dune/app/users/plasorak")))
 
@@ -770,12 +770,6 @@ Good for linting
 (global-unset-key (kbd "C-x <left>"))
 (global-unset-key (kbd "C-x <right>"))
 
-(add-hook 'minibuffer-setup-hook
-          (lambda ()
-            (local-unset-key (kbd "<left>"))
-            (local-unset-key (kbd "<right>"))
-            (local-unset-key (kbd "<up>"))
-            (local-unset-key (kbd "<down>"))))
 (add-hook 'ansi-term-hook
           (lambda ()
             (local-unset-key (kbd "<left>"))
@@ -785,4 +779,13 @@ Good for linting
 (use-package disable-mouse
 :ensure t)
 (global-disable-mouse-mode)
+#+END_SRC
+* Markdown mode
+#+BEGIN_SRC emacs-lisp
+(use-package markdown-mode
+  :ensure t
+  :mode (("README\\.md\\'" . gfm-mode)
+         ("\\.md\\'" . markdown-mode)
+         ("\\.markdown\\'" . markdown-mode))
+  :init (setq markdown-command "multimarkdown"))
 #+END_SRC
